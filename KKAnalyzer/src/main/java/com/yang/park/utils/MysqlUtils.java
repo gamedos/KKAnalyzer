@@ -19,32 +19,52 @@ import java.util.Map;
 
 public class MysqlUtils {
 
-	private static final String URL = "jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=UTF-8";
-	private static final String USER = "root";
-	private static final String PASSWORD = "";
+	private static String Driver;
+	private static String URL;// = "jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=UTF-8"
+	private static String USER;// = "root"
+	private static String PASSWORD;// = ""
 
 	private static Connection conn = null;
 
-	static {
-		try {
-			// 1.加载驱动程序
-			Class.forName("com.mysql.jdbc.Driver");
-			// 2.获得数据库的连接
-			conn = DriverManager.getConnection(URL, USER, PASSWORD);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
+//	static {
+//		try {
+//			// 1.加载驱动程序
+//			Class.forName("com.mysql.jdbc.Driver");
+//			// 2.获得数据库的连接
+//			conn = DriverManager.getConnection(URL, USER, PASSWORD);
+//		} catch (ClassNotFoundException e) {
+//			e.printStackTrace();
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
+//	}
 
+	public static void initJDBC( String _driver,String _url,String _user,String _pwd ){
+		Driver = _driver;
+		URL = _url;
+		USER = _user;
+		PASSWORD = _pwd;
+	}
+	
 	public static Connection getConnection() {
+		if(conn==null){
+			try {
+				// 1.加载驱动程序
+				Class.forName(Driver);
+				// 2.获得数据库的连接
+				conn = DriverManager.getConnection(URL, USER, PASSWORD);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
 		return conn;
 	}
 	
 	public static void close(){
 		try {
-			MysqlUtils.conn.close();
+			MysqlUtils.getConnection().close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -60,7 +80,7 @@ public class MysqlUtils {
 	public static List<Map<String,Object>> getAll(String sql){
 		List<Map<String,Object>> retData = new ArrayList<Map<String,Object>>();
 		try {
-			PreparedStatement preparedStatement = MysqlUtils.conn.prepareStatement(sql);
+			PreparedStatement preparedStatement = MysqlUtils.getConnection().prepareStatement(sql);
 			ResultSet rs =  preparedStatement.executeQuery();
 			if(rs.next()){
 				ResultSetMetaData   rsmd = rs.getMetaData();
@@ -96,7 +116,7 @@ public class MysqlUtils {
 	public static Integer getTotalCount(String sql){
 		Integer retData = 0;
 		try {
-			PreparedStatement preparedStatement = MysqlUtils.conn.prepareStatement(sql);
+			PreparedStatement preparedStatement = MysqlUtils.getConnection().prepareStatement(sql);
 			ResultSet rs =preparedStatement.executeQuery();
 			if(rs.next()){
 				retData = rs.getInt("rowcount");
@@ -120,7 +140,7 @@ public class MysqlUtils {
 		String sql = "SELECT " +field+ " FROM "+tableName+" WHERE " + where + " LIMIT 0,1";
 		Integer retData = null;
 		try {
-			PreparedStatement preparedStatement = MysqlUtils.conn.prepareStatement(sql);
+			PreparedStatement preparedStatement = MysqlUtils.getConnection().prepareStatement(sql);
 			ResultSet rs =preparedStatement.executeQuery();
 			if(rs.next()){
 				retData = rs.getInt(field);
@@ -145,7 +165,7 @@ public class MysqlUtils {
 		String sql = "SELECT " +field+ " FROM "+tableName+" WHERE " + where + " LIMIT 0,1";
 		String retData = null;
 		try {
-			PreparedStatement preparedStatement = MysqlUtils.conn.prepareStatement(sql);
+			PreparedStatement preparedStatement = MysqlUtils.getConnection().prepareStatement(sql);
 			ResultSet rs =preparedStatement.executeQuery();
 			if(rs.next()){
 				retData = rs.getString(field);
@@ -177,7 +197,7 @@ public class MysqlUtils {
 		String sql = "SELECT " + JStringUtils.join(fields,",") + " FROM "+tableName+" WHERE " + where;
 		Map<String,Object> retData = null;
 		try {
-			PreparedStatement preparedStatement = MysqlUtils.conn.prepareStatement(sql);
+			PreparedStatement preparedStatement = MysqlUtils.getConnection().prepareStatement(sql);
 			ResultSet rs =preparedStatement.executeQuery();
 			if(rs.next()){
 				retData = new HashMap<String,Object>();
@@ -218,7 +238,7 @@ public class MysqlUtils {
 		String sql = "INSERT INTO "+tableName+" ("+JStringUtils.join(fields, ",")+") VALUES("+JStringUtils.join(values, ",")+") ";
 		//
 		try {
-			PreparedStatement preparedStatement = MysqlUtils.conn.prepareStatement(sql);
+			PreparedStatement preparedStatement = MysqlUtils.getConnection().prepareStatement(sql);
 			return preparedStatement.execute();
 		} catch (SQLException e) {
 //			e.printStackTrace();
@@ -263,7 +283,7 @@ public class MysqlUtils {
 		System.out.println(sql);
 		//
 		try {
-			PreparedStatement preparedStatement = MysqlUtils.conn.prepareStatement(sql);
+			PreparedStatement preparedStatement = MysqlUtils.getConnection().prepareStatement(sql);
 			return preparedStatement.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -301,7 +321,7 @@ public class MysqlUtils {
 		sql = sql  + " WHERE " + where;
 		//
 		try {
-			PreparedStatement preparedStatement = MysqlUtils.conn.prepareStatement(sql);
+			PreparedStatement preparedStatement = MysqlUtils.getConnection().prepareStatement(sql);
 			return preparedStatement.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -326,7 +346,7 @@ public class MysqlUtils {
 		sql = sql  + " WHERE " + where;
 		//
 		try {
-			PreparedStatement preparedStatement = MysqlUtils.conn.prepareStatement(sql);
+			PreparedStatement preparedStatement = MysqlUtils.getConnection().prepareStatement(sql);
 			return preparedStatement.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -339,7 +359,7 @@ public class MysqlUtils {
 		String sql = "TRUNCATE "+tableName;
 		//
 		try {
-			PreparedStatement preparedStatement = MysqlUtils.conn.prepareStatement(sql);
+			PreparedStatement preparedStatement = MysqlUtils.getConnection().prepareStatement(sql);
 			preparedStatement.execute();
 		} catch (SQLException e) {
 		}

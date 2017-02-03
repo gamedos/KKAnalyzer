@@ -5,6 +5,12 @@
 */
 package com.dongman.yang.KKAnalyzer.service;
 
+import javax.annotation.Resource;
+
+import org.apache.commons.configuration.Configuration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.dongman.yang.KKAnalyzer.dao.GenreDao;
 import com.dongman.yang.KKAnalyzer.dao.TopicTagsDao;
 import com.dongman.yang.KKAnalyzer.dao.WorkDao;
@@ -13,7 +19,9 @@ import com.dongman.yang.KKAnalyzer.service.workers.AnalysisWoker;
 import com.dongman.yang.KKAnalyzer.service.workers.GetInfoWorker;
 import com.dongman.yang.KKAnalyzer.service.workers.GetTopicWorker;
 import com.yang.park.utils.DateTimeUtils;
+import com.yang.park.utils.MysqlUtils;
 
+@Service
 public class WorkService {
 	//
 	public static int WORK_STATE_CREATE = 0;
@@ -21,6 +29,12 @@ public class WorkService {
 	public static int WORK_STATE_UPDATE_INFOS = 2;
 	public static int WORK_STATE_ANALYSIS= 3;
 	public static int WORK_STATE_END=4;
+	//
+	@Autowired
+	private GetTopicWorker getTopicWorker;
+	
+	@Autowired
+	private GetInfoWorker getInfoWorker;
 	//
 	private Work currentWork;
 	// 
@@ -41,16 +55,16 @@ public class WorkService {
 			TopicTagsDao.getInstance().clear();//清楚标签数据
 			// 调用获取获取topic任务
 			System.out.println("调用获取获取topic任务");
-			realCount = GetTopicWorker.getInstance().getTopics(currentWork);
+			realCount = getTopicWorker.getTopics(currentWork);
 			System.out.println("realCount => " + realCount);
 		}else if(currentState == WORK_STATE_UPDATE_TOPICS){
 			// 调用获取获取topic任务
 			System.out.println("调用获取获取topic任务");
-			realCount = GetTopicWorker.getInstance().getTopics(currentWork);
+			realCount = getTopicWorker.getTopics(currentWork);
 			System.out.println("realCount => " + realCount);
 		}else if(currentState == WORK_STATE_UPDATE_INFOS){
 			System.out.println("获取详细信息任务");
-			realCount = GetInfoWorker.getInstance().getInfo(currentWork);
+			realCount = getInfoWorker.getInfo(currentWork);
 			System.out.println("realCount => " + realCount);
 		}else if(currentState == WORK_STATE_ANALYSIS){
 			System.out.println("统计今日数据");

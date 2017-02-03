@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+         http://www.springframework.org/schema/task
+         http://www.springframework.org/schema/task/spring-task.xsd">
+
+    <!-- 扫描service 包下所有注解的类型 -->
+	<context:component-scan base-package="com.dongman.yang.KKAnalyzer" >
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Service" />
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Component" />
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Repository" />
+	</context:component-scan>
+
+	<!-- ## Properties ## -->
+	<bean id="WorkTask" name="WorkTask" class="com.dongman.yang.KKAnalyzer.WorkTask"></bean>
+	
+	<bean id="commonConfig" class="org.apache.commons.configuration.PropertiesConfiguration">
+		<constructor-arg type="java.net.URL" value="classpath:common.properties" />
+		<!--
+		<property name="reloadingStrategy">
+			<bean class="org.apache.commons.configuration.reloading.FileChangedReloadingStrategy" />
+		</property>
+		-->
+	</bean>
+	<bean id="jdbcConfig" class="org.apache.commons.configuration.PropertiesConfiguration">
+		<constructor-arg type="java.net.URL" value="classpath:local.properties" />
+	</bean>
+
+	    
+	<!-- ## Executor & Scheduler ## 
+	<task:annotation-driven executor="executor" scheduler="scheduler" />
+	<task:executor id="executor" pool-size="30" />
+	<task:scheduler id="scheduler" pool-size="20" />
+	-->
+</beans>

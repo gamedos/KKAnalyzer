@@ -6,6 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
+import org.apache.commons.configuration.Configuration;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.dongman.yang.KKAnalyzer.dao.GenreDao;
@@ -17,17 +21,21 @@ import com.yang.park.utils.JStringUtils;
 import com.yang.park.utils.JacksonUtils;
 import com.yang.park.utils.MysqlUtils;
 
+@Service
 public class GetTopicWorker {
 
-	private static GetTopicWorker instance;
+	@Resource(name = "commonConfig")
+	private Configuration commonConfig;
 	
-	//
-	public static GetTopicWorker getInstance(){
-		if(instance == null){
-			instance = new GetTopicWorker();
-		}
-		return instance;
-	}
+//	private static GetTopicWorker instance;
+//	
+//	//
+//	public static GetTopicWorker getInstance(){
+//		if(instance == null){
+//			instance = new GetTopicWorker();
+//		}
+//		return instance;
+//	}
 	//
 	public int getTopics(Work work){
 		String strGenre = work.getTemp();
@@ -44,7 +52,8 @@ public class GetTopicWorker {
 		int getCount = 50;
 
 		//
-		String url = "http://www.kkmh.com/web/tags/{tags}?count={count}&page={page}";
+//		String url = "http://www.kkmh.com/web/tags/{tags}?count={count}&page={page}";
+		String url = commonConfig.getString("worker.getTopic.url");
 		//
 		RestTemplate restTemplate = new RestTemplate();
 		String json = (String) restTemplate.getForObject(url, String.class, new Object[] { genreid, ""+getCount, ""+curpage });

@@ -4,8 +4,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.swing.plaf.synth.SynthSeparatorUI;
 
+import org.apache.commons.configuration.Configuration;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.dongman.yang.KKAnalyzer.dao.TopicHistoryDao;
@@ -19,19 +22,33 @@ import com.yang.park.utils.DateTimeUtils;
 import com.yang.park.utils.JStringUtils;
 import com.yang.park.utils.MysqlUtils;
 
+@Service
 public class GetInfoWorker {
-	private static GetInfoWorker instance;
-	//
-	public static GetInfoWorker getInstance(){
-		if(instance == null){
-			instance = new GetInfoWorker();
-		}
-		return instance;
-	}
+
+	@Resource(name = "commonConfig")
+	private Configuration commonConfig;
+	
+//	private static GetInfoWorker instance;
+//	//
+//	public static GetInfoWorker getInstance(){
+//		if(instance == null){
+//			instance = new GetInfoWorker();
+//		}
+//		return instance;
+//	}
 	//
 	public int getInfo(Work work){
 
-		String url = "http://www.kkmh.com/web/topic/{id}";
+		String commentTagDataStart = commonConfig.getString("key2key.commentTagData.start");
+		String commentTagDataEnd = commonConfig.getString("key2key.commentTagData.end");
+		String likesTagDataStart = commonConfig.getString("key2key.likesTagData.start");
+		String likesTagDataEnd = commonConfig.getString("key2key.likesTagData.end");
+		String hotTagDataStart = commonConfig.getString("key2key.hotTagData.start");
+		String hotTagDataEnd = commonConfig.getString("key2key.hotTagData.end");
+		
+		
+//		String url = "http://www.kkmh.com/web/topic/{id}";
+		String url = commonConfig.getString("worker.getInfo.url");
 		RestTemplate restTemplate = new RestTemplate();
 		//
 		Calendar calendar = Calendar.getInstance();  
@@ -60,9 +77,9 @@ public class GetInfoWorker {
 			
 			// 分析 html 获取
 			// 1, 评论 key2key
-			String commentTagData = JStringUtils.key2key(html, "<em>评论:</em>", "</span>");
-			String likesTagData = JStringUtils.key2key(html, "<em>赞:</em>", "</span>");
-			String hotTagData = JStringUtils.key2key(html, "&#xe619;</i>", "<i");
+			String commentTagData = JStringUtils.key2key( html, commentTagDataStart, commentTagDataEnd );
+			String likesTagData = JStringUtils.key2key(html, likesTagDataStart, likesTagDataEnd);
+			String hotTagData = JStringUtils.key2key(html, hotTagDataStart, hotTagDataEnd);
 			
 			System.out.println("hotTagData:"+hotTagData);
 			
